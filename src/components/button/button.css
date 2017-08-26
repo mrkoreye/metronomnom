@@ -1,0 +1,14 @@
+.button {
+  display: block;
+  width: 180px;
+  margin: 10px auto;
+  height: 35px;
+  border: 1px solid black;
+  background-color: bisque;
+}
+
+@media (max-width: 500px) {
+  .button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,11 @@
+.cookie-image {
+  height: 400px;
+  width: 400px;
+}
+
+@media (max-width: 500px) {
+  .cookie-image {
+    width: 100%;
+    height: auto;
+  }
+}
