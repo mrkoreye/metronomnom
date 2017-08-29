@@ -173,7 +173,6 @@ class App extends Component {
     return (
       <div className="main-container">
         <div className="app-header">
-          <h1>Metronomnom</h1>
           <Cookie
             metronomeActive={this.state.metronomeOn}
             currentImg={this.state.currentCookieImage} />
@@ -206,6 +205,7 @@ class App extends Component {
               addClass="fa fa-arrow-right"
               clickHandler={this.nextClickType} />
           </div>
+          <h1>Metronomnom</h1>
         </div>
       </div>
     );
