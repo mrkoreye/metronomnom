@@ -2,7 +2,7 @@ import React from 'react';
 import './button.css';
 
 function Button(props) {
-  const label = props.label || '+';
+  const label = props.label;
   let className = 'button';
 
   if (props.addClass) {

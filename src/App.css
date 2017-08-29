@@ -1,10 +1,44 @@
 .main-container {
-  max-width: 800px;
+  max-width: 500px;
   margin: 0 auto;
   font-family: 'Ubuntu Mono', monospace;
   padding: 0 20px;
+  color: #444;
 }
 
 .app-header {
   text-align: center;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.rc-slider {
+  margin: 30px auto;
+}
+
+.rc-slider-handle {
+  border-color: #e9e9e9;
+  height: 50px;
+  width: 50px;
+  margin-left: -25px;
+  margin-top: -23px;
+  text-align: center;
+  font-size: 28px;
+  color: #444;
+}
+
+.rc-slider-handle:hover {
+  border-color: #e9e9e9;
+}
+
+.rc-slider-handle[class*="fa-cutlery"]:before {
+  position: relative;
+  top: 9px;
+  left: 0px;
+}
+
+.rc-slider-track {
+  background-color: deepskyblue;
 }

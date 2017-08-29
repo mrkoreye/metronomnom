@@ -1,18 +1,38 @@
 import React, { Component } from 'react';
 import Button from './components/button/button'
 import Cookie from './components/cookie/cookie'
+import Slider from 'rc-slider';
+
+import 'rc-slider/assets/index.css';
 import './App.css';
 
+const DEFAULT_BPM = 120;
+const DEFAULT_VOLUME = 0.7;
+const MIN_BPM = 20;
+const MAX_BPM = 220;
+
 const Howl = require('howler').Howl;
-const click1 = new Howl({
-  src: ['click.mp3']
-});
-const click2 = new Howl({
-  src: ['click-2.mp3']
-});
+const Handle = Slider.Handle;
 
 class App extends Component {
-  initialCookieSrc = 'cookie-0.png'
+  clicks = [
+    new Howl({
+      src: ['clicks/click-0.mp3'],
+      volume: DEFAULT_VOLUME,
+    }),
+    new Howl({
+      src: ['clicks/click-1.mp3'],
+      volume: DEFAULT_VOLUME,
+    }),
+    new Howl({
+      src: ['clicks/click-2.mp3'],
+      volume: DEFAULT_VOLUME,
+    }),
+    new Howl({
+      src: ['clicks/click-3.mp3'],
+      volume: DEFAULT_VOLUME,
+    }),
+  ];
 
   constructor(props) {
     super(props);
@@ -20,20 +40,20 @@ class App extends Component {
     this.state = {
       metronomeOn: false,
       metronomeId: null,
-      bpm: 120,
+      bpm: DEFAULT_BPM,
       currentCookieImage: 0,
-      cookieSrc: this.initialCookieSrc,
-      selectedTone: 1,
+      currentClickInstance: 3,
     }
 
     // Bind functions to this instance of the App component
-    this.toggleMetronome = this.toggleMetronome.bind(this);
     this.decreaseBpm = this.decreaseBpm.bind(this);
     this.increaseBpm = this.increaseBpm.bind(this);
-    this.toggleSound = this.toggleSound.bind(this);
+    this.restartMetronome = this.restartMetronome.bind(this);
+    this.increaseVolume = this.increaseVolume.bind(this);
+    this.decreaseVolume = this.decreaseVolume.bind(this);
   }
 
-  toggleMetronome() {
+  toggleMetronome = () => {
     if (this.state.metronomeOn) {
       this.stopMetronome();
     } else {
@@ -48,92 +68,144 @@ class App extends Component {
 
     this.setState({
       currentCookieImage: nextImage,
-      cookieSrc: `cookie-${nextImage}.png`,
     });
   }
 
   startMetronome() {
     const timing = 60000 / this.state.bpm;
-    let firstClick = true;
 
     const metronomeId = setInterval(() => {
-      if (firstClick) {
-        firstClick = false;
-      } else {
-        this.incrementCookieImage();
-      }
-
-      if (this.state.selectedTone === 1) {
-        click1.play();
-      } else {
-        click2.play();
-      }
-      
+      this.incrementCookieImage();
+      this.clicks[this.state.currentClickInstance].play();
     }, timing);
 
     this.setState({
-      metronomeOn: !this.state.metronomeOn,
+      metronomeOn: true,
       metronomeId: metronomeId
-    });
+    }, () => this.clicks[this.state.currentClickInstance].play());
   }
 
   stopMetronome() {
     clearInterval(this.state.metronomeId);
 
     this.setState({
-      metronomeOn: !this.state.metronomeOn,
+      metronomeOn: false,
       metronomeId: null,
       currentCookieImage: 0,
-      cookieSrc: this.initialCookieSrc,
     });
   }
 
   decreaseBpm() {
     const bpm = this.state.bpm - 1;
-    this.changeBpm(bpm);
+    this.setBpm(bpm);
   }
 
   increaseBpm() {
     const bpm = this.state.bpm + 1;
-    this.changeBpm(bpm);
+    this.setBpm(bpm);
   }
 
-  changeBpm(newBpm) {
-    this.stopMetronome();
-
+  setBpm(newBpm) {
     this.setState({
       bpm: newBpm
     });
   }
 
-  toggleSound() {
-    const newTone = this.state.selectedTone === 1 ? 2 : 1;
+  onBpmSliderChange = (bpm) => {
+    this.setBpm(bpm);
+  }
+
+  restartMetronome() {
+    this.stopMetronome();
+    this.startMetronome();
+  }
+
+  increaseVolume() {
+    const currentVolume = this.clicks[this.state.currentClickInstance].volume();
+
+    if (currentVolume === 1) {
+      return;
+    } else {
+      this.clicks[this.state.currentClickInstance].volume(currentVolume + 0.1);
+    }
+  }
+
+  decreaseVolume() {
+    const currentVolume = this.clicks[this.state.currentClickInstance].volume();
+
+    if (currentVolume === 0) {
+      return;
+    } else {
+      this.clicks[this.state.currentClickInstance].volume(currentVolume - 0.1);
+    }
+  }
+
+  nextClickType = () => {
+    const currentClick = this.state.currentClickInstance;
+    const nextClickInstance = (currentClick + 1) % this.clicks.length;
+    console.log(nextClickInstance);
     this.setState({
-      selectedTone: newTone
+      currentClickInstance: nextClickInstance,
     });
+  }
+
+  previousClickType = () => {
+    const currentClick = this.state.currentClickInstance;
+    const nextClickInstance = (currentClick - 1) >= 0 ? currentClick - 1 :  this.clicks.length - 1;
+    console.log(nextClickInstance);
+    this.setState({
+      currentClickInstance: nextClickInstance,
+    });
+  }
+
+  handleEl = (props) => {
+    const { value, dragging, index, className, ...restProps } = props;
+    
+    return (
+      <Handle
+        className={className + ' fa fa-cutlery'}
+        value={value} 
+        {...restProps} />
+    )
   }
 
   render() {
     return (
       <div className="main-container">
         <div className="app-header">
-          <h2>Metronomnom</h2>
+          <h1>Metronomnom</h1>
           <Cookie
-            src={this.state.cookieSrc} />
-          <h4>BPM: {this.state.bpm}</h4>
-          <Button
-            label="Toggle On / Off" 
-            addClass="toggle large"
-            clickHandler={this.toggleMetronome} />
-          <Button
-            label='Slower'
-            clickHandler={this.decreaseBpm} />
-          <Button
-            label='Faster'
-            clickHandler={this.increaseBpm} />
-          <Button
-            label='Change Sound'
-            clickHandler={this.toggleSound} />
+            metronomeActive={this.state.metronomeOn}
+            currentImg={this.state.currentCookieImage} />
+          <h2>{this.state.bpm} bpm</h2>
+          <Slider 
+            min={MIN_BPM}
+            max={MAX_BPM}
+            value={this.state.bpm}
+            handle={this.handleEl}
+            onChange={this.onBpmSliderChange}
+            onAfterChange={this.restartMetronome}/>
+          <div className="button-container">
+            <Button
+              addClass={'fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
+              clickHandler={this.toggleMetronome} />
+            <Button
+              addClass="fa fa-volume-down"
+              clickHandler={this.decreaseVolume} />
+            <Button
+              addClass="fa fa-volume-up"
+              clickHandler={this.increaseVolume} />
+          </div>
+          <div className="button-container">
+            <Button
+              addClass="fa fa-arrow-left"
+              clickHandler={this.previousClickType} />
+            <Button
+              addClass={'click-' + this.state.currentClickInstance + ' click-bell fa fa-bell'} />
+            <Button
+              addClass="fa fa-arrow-right"
+              clickHandler={this.nextClickType} />
+          </div>
         </div>
       </div>
     );
