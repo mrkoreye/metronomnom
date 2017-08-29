@@ -1,21 +1,44 @@
-import React from 'react';
+import React, {Component} from 'react';
 import './button.css';
 
-function Button(props) {
-  const label = props.label;
-  let className = 'button';
+class Button extends Component {
+  constructor(props) {
+    super(props);
 
-  if (props.addClass) {
-    className = `${className} ${props.addClass}`;
+    this.state = {
+      clicked: false,
+    };
   }
 
-  return (
-    <button
-      className={className}
-      onClick={props.clickHandler}>
-      {label}
-    </button>
-  );
+  clickHandler = () => {
+    if (this.props.noClick) {
+      return;
+    }
+
+    if (!this.props.noClickAnim) {
+      this.setState({
+        clicked: true,
+      });
+  
+      setTimeout(() => {
+        this.setState({
+          clicked: false,
+        })
+      }, 150)
+    }
+
+    this.props.clickHandler();
+  }
+
+  render() {
+    return (
+      <button
+        className={`button ${this.props.addClass} ` + (this.state.clicked ? 'clicked' : '')}
+        onClick={this.clickHandler}>
+        {this.props.label}
+      </button>
+    );
+  }
 }
 
 export default Button;

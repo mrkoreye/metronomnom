@@ -9,9 +9,20 @@
   font-size: 30px;
   cursor: pointer;
   background-color: white;
+  outline: none;
+  transition: border 150ms ease-out;
+  transition: color 150ms ease-out;
+}
+
+.button.no-transition {
+  transition: none;
 }
 
 .button.active {
+  color: deepskyblue;
+}
+
+.button.clicked {
   color: deepskyblue;
 }
 

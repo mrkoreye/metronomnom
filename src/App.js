@@ -265,7 +265,8 @@ class App extends Component {
             onAfterChange={this.restartMetronome}/>
           <div className="button-container">
             <Button
-              addClass={'fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
+              noClickAnim={true}
+              addClass={'no-transition fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
               clickHandler={this.toggleMetronome} />
             <Button
               addClass="fa fa-volume-down"
@@ -279,6 +280,7 @@ class App extends Component {
               addClass="fa fa-arrow-left"
               clickHandler={this.previousClickType} />
             <Button
+              noClick={true}
               addClass={'click-' + this.state.currentClickType + ' click-bell fa fa-bell'} />
             <Button
               addClass="fa fa-arrow-right"
@@ -286,7 +288,7 @@ class App extends Component {
           </div>
           <div className="button-container">
             <Button
-              addClass={'fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
+              addClass={'no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
               clickHandler={this.toggleAccentFirstBeat} />
             <Button
               addClass={'fa fa-hand-peace-o ' + (this.state.noteResolution === 4 ? 'active' : '')} 

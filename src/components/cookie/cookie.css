@@ -1,6 +1,5 @@
 .cookie-image {
-  height: 400px;
-  width: 400px;
+  width: 80%;
   display: none;
   border: 10px solid transparent;
   border-radius: 100%;
@@ -44,12 +43,5 @@
 
   100% {
     transform: roate(0deg);
-  }
-}
-
-@media (max-width: 500px) {
-  .cookie-image {
-    width: 100%;
-    height: auto;
   }
 }
