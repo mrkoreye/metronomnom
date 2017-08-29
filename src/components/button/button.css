@@ -11,6 +11,10 @@
   background-color: white;
 }
 
+.button.active {
+  color: deepskyblue;
+}
+
 .button-container {
   margin-bottom: 20px;
 }
