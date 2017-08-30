@@ -103,7 +103,8 @@ class App extends Component {
   toggleAccentFirstBeat = () => {
     this.metronome.accentFirstBeat(true);
     this.setState({
-      accentFirstBeat: this.metronome.accentFirstBeat()
+      accentFirstBeat: this.metronome.accentFirstBeat(),
+      inThree: this.metronome.isInThree() ? '3' : '',
     });
   }
 
@@ -153,6 +154,7 @@ class App extends Component {
           <div className="button-container">
             <Button
               addClass={'no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
+              label={this.state.inThree}
               clickHandler={this.toggleAccentFirstBeat} />
             <Button
               addClass={'fa fa-hand-peace-o ' + (this.state.noteResolution === 4 ? 'active' : '')} 

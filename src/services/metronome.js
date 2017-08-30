@@ -6,7 +6,8 @@ const VOLUME_CHANGE_INCREMENT = 0.1;
 const DEFAULT_NOTE_RESOLUTION = 4;
 const ACCENT_NOTE_PLAYBACK_VALUE = 1.1;
 // Break each loop/measure up into 16 notes
-const LAST_NOTE_OF_BAR = 16;
+const LAST_NOTE_OF_BAR_IN_FOUR = 16;
+const LAST_NOTE_OF_BAR_IN_THREE = 12;
 // in milliseconds
 const INTERVAL_FOR_TIME_CHECK = 25;
 // in seconds
@@ -18,17 +19,18 @@ window.AudioContext = window.AudioContext || window.webkitAudioContext;
 // The timing aspect of this metronome is a slightly modified version of:
 // https://github.com/cwilso/metronome/blob/master/js/metronome.js
 class Metronome {
+  _lastNoteOfBar = LAST_NOTE_OF_BAR_IN_FOUR;
+  _noteResolution = DEFAULT_NOTE_RESOLUTION;
+  _bpm = DEFAULT_BPM;
   _current16thNoteInBar = 0;
   _timeCheckIntervalId = null;
   _clickBuffers = [];
   _nextNoteTime = 0.0;
   _clickType = 3;
-  _noteResolution = DEFAULT_NOTE_RESOLUTION;
   _accentFirstBeat = false;
   _clickGainNode = null;
   _audioContext = null;
   _isOn = false;
-  _bpm = DEFAULT_BPM;
 
   constructor() {
     this._audioContext = new AudioContext();
@@ -86,10 +88,25 @@ class Metronome {
 
   accentFirstBeat(toggle) {
     if (toggle) {
-      this._accentFirstBeat = !this._accentFirstBeat;
+      if (!this._accentFirstBeat) {
+        this._accentFirstBeat = true;
+      } else if (this._accentFirstBeat && !this.isInThree()) {
+        this._lastNoteOfBar = LAST_NOTE_OF_BAR_IN_THREE;
+      } else {
+        this._accentFirstBeat = false;
+        this._lastNoteOfBar = LAST_NOTE_OF_BAR_IN_FOUR;
+      } 
     }
 
     return this._accentFirstBeat;
+  }
+
+  isInThree() {
+    if (this._lastNoteOfBar === LAST_NOTE_OF_BAR_IN_THREE) {
+      return true;
+    }
+
+    return false;
   }
 
   increaseVolume() {
@@ -160,7 +177,7 @@ class Metronome {
 
   _scheduleNote = (beatNumber, time, onNoteClick) => {
     // Don't play every 16th beat when we only want 8ths or 4ths
-    const shouldPlayBeat = !(beatNumber % (LAST_NOTE_OF_BAR / this._noteResolution));
+    const shouldPlayBeat = !(beatNumber % (this._lastNoteOfBar / this._noteResolution));
 
     if (shouldPlayBeat) {
       const shouldAccentNote = beatNumber === 0 && this._accentFirstBeat;
@@ -184,7 +201,7 @@ class Metronome {
     const secondsPerBeat = 60.0 / this._bpm;
     // 0.25 converts quarter note to 16th note
     this._nextNoteTime += 0.25 * secondsPerBeat;
-    this._current16thNoteInBar = (this._current16thNoteInBar + 1) % LAST_NOTE_OF_BAR;
+    this._current16thNoteInBar = (this._current16thNoteInBar + 1) % LAST_NOTE_OF_BAR_IN_FOUR;
   }
 
   _generateClickSource = (clickNumber) => {
