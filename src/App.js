@@ -29,6 +29,7 @@ const audioContext = new AudioContext();
 // The gain node is used to control volume
 const clickGainNode = audioContext.createGain();
 clickGainNode.connect(audioContext.destination);
+clickGainNode.gain.value = DEFAULT_VOLUME;
 
 // The timing aspect of this metronome is a slightly modified version of:
 // https://github.com/cwilso/metronome/blob/master/js/metronome.js
@@ -36,7 +37,6 @@ class App extends Component {
   current16thNoteInBar = 0;
   notesInQueue = [];
   timeCheckIntervalId = null;
-  currentVolume = DEFAULT_VOLUME;
   clickBuffers = [];
   nextNoteTime = 0.0;
   lastBeatDrawn = 0;
@@ -183,22 +183,24 @@ class App extends Component {
   }
 
   increaseVolume = () => {
-    const currentVolume = this.currentVolume;
+    const currentVolume = clickGainNode.gain.value;
+    const roundedValue = Math.round(currentVolume * 10) / 10;
 
-    if (currentVolume === 1) {
+    if (roundedValue >= 1) {
       return;
     } else {
-      clickGainNode.gain.value = this.currentVolume = currentVolume + VOLUME_CHANGE_INCREMENT;
+      clickGainNode.gain.value = roundedValue + VOLUME_CHANGE_INCREMENT;
     }
   }
 
   decreaseVolume = () => {
-    const currentVolume = this.currentVolume;
+    const currentVolume = clickGainNode.gain.value;
+    const roundedValue = Math.round(currentVolume * 10) / 10;
 
-    if (currentVolume === 0) {
+    if (roundedValue <= 0) {
       return;
     } else {
-      clickGainNode.gain.value = this.currentVolume = currentVolume - VOLUME_CHANGE_INCREMENT;
+      clickGainNode.gain.value = roundedValue - VOLUME_CHANGE_INCREMENT;
     }
   }
 
