@@ -1,7 +1,6 @@
 .cookie-image {
   width: 80%;
   display: none;
-  border: 10px solid transparent;
   border-radius: 100%;
   padding: 15px;
 }
@@ -12,24 +11,6 @@
 
 .cookie-image.metronome-inactive {
   animation: rotate 4s ease-in-out 3 5s;
-}
-
-.cookie-image.cookie-image.metronome-active {
-  border-color: deepskyblue;
-}
-
-.cookie-image.cookie-image.metronome-active:nth-of-type(2) {
-  border-style: dashed;
-}
-
-.cookie-image.cookie-image.metronome-active:nth-of-type(3) {
-  border-style: dotted;
-}
-
-.cookie-image.cookie-image.metronome-active:nth-of-type(4) {
-  border-width: 5px;
-  border-style: dotted;
-  padding: 22px;
 }
 
 @keyframes rotate {

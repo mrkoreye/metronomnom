@@ -1,0 +1,22 @@
+.indicator-lights-container {
+  display: block;
+  font-size: 0;
+  text-align: center;
+  margin: 0 auto;
+  width: 90%;
+}
+
+.indicator-light {
+  display: inline-block;
+  height: 50px;
+  background: #e9e9e9;
+  border: 1px solid white;
+}
+
+.indicator-light.active {
+  background: deepskyblue;
+}
+
+.indicator-light.active.accented {
+  background: gold;
+}

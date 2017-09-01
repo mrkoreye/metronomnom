@@ -4,14 +4,13 @@
   font-family: 'Ubuntu Mono', monospace;
   padding: 20px;
   color: #444;
-}
-
-.app-header {
   text-align: center;
 }
 
 h1 {
   font-style: italic;
+  font-size: 25px;
+  margin: 5px;
 }
 
 * {
@@ -19,7 +18,7 @@ h1 {
 }
 
 .rc-slider {
-  margin: 30px auto;
+  margin: 35px auto;
   width: 90%;
 }
 
@@ -46,4 +45,59 @@ h1 {
 
 .rc-slider-track {
   background-color: deepskyblue;
+}
+
+.Select-control {
+  border: none;
+  height: 40px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.Select {
+  font-family: 'Cinzel', serif;
+  display: inline-block;
+  width: 55px;
+  height: 40px;
+  margin: 0 15px;
+  border: none;
+  color: #444;
+  font-size: 30px;
+  cursor: pointer;
+  background-color: white;
+  outline: none;
+  vertical-align: bottom;
+  position: relative;
+  border-radius: 0;
+}
+
+.Select.beats-per-bar {
+  top: 10px;
+  border-bottom: 2px solid #444;
+}
+
+.Select.note-value-for-beat {
+  bottom: 5px;
+}
+
+.Select-arrow-zone {
+  padding-right: 0;
+  top: -12px;
+  text-align: right;
+  display: none;
+}
+
+.Select-arrow {
+  border-color: #ccc transparent transparent;
+}
+
+.link-container {
+  margin: 80px auto 0;
+  text-align: center;
+}
+
+.fa.fa-github {
+  font-size: 30px;
+  color: #d9d9d9;
+  text-decoration: none;
 }

@@ -1,11 +1,14 @@
+import 'rc-slider/assets/index.css';
+import 'react-select/dist/react-select.css';
+import './App.css';
+
 import React, { Component } from 'react';
 import Button from './components/button/button';
 import Cookie from './components/cookie/cookie';
 import Metronome from './services/metronome';
 import Slider from 'rc-slider';
-
-import 'rc-slider/assets/index.css';
-import './App.css';
+import Select from 'react-select';
+import IndicatorLights from './components/indicator-lights/indicator-lights';
 
 const Handle = Slider.Handle;
 const MIN_BPM = 20;
@@ -18,13 +21,11 @@ class App extends Component {
     super(props);
     this.metronome = new Metronome();
     this.state = {
-      metronomeOn: this.metronome.isOn(),
-      bpm: this.metronome.bpm(),
+      ...this.getMetronomeState(),
       currentCookieImage: 0,
-      currentClickType: this.metronome.clickType(),
-      noteResolution: this.metronome.noteResolution(),
-      accentFirstBeat: this.metronome.accentFirstBeat(),
-    }
+      activeBeat: 0,
+      firstClick: true,
+    };
   }
 
   toggleMetronome = () => {
@@ -36,25 +37,37 @@ class App extends Component {
   }
 
   startMetronome = () => {
-    this.metronome.start(this.incrementCookieImage);
+    this.metronome.start(this.updateClickUiProgression);
+    this.updateMetronomeState();
     this.setState({
-      metronomeOn: this.metronome.isOn(),
+      currentCookieImage: 0,
+      firstClick: true,
     });
   }
 
   stopMetronome = () => {
     this.metronome.stop();
+    this.updateMetronomeState();
+  }
+
+  updateClickUiProgression = (firstBeatOfBar, currentBeat) => {
     this.setState({
-      metronomeOn: this.metronome.isOn(),
-      currentCookieImage: 0,
+      activeBeat: currentBeat,
     });
+
+    if (firstBeatOfBar && !this.state.firstClick) {
+      this.incrementCookieImage();
+    } else {
+      this.setState({
+        firstClick: false,
+      })
+    }
   }
 
   incrementCookieImage = () => {
     const numCookieImages = 4;
     const currentCookieImage = this.state.currentCookieImage;
     const nextImage = (currentCookieImage + 1) % numCookieImages;
-
     this.setState({
       currentCookieImage: nextImage,
     });
@@ -62,9 +75,7 @@ class App extends Component {
 
   setBpm(newBpm) {
     this.metronome.bpm(newBpm);
-    this.setState({
-      bpm: this.metronome.bpm(),
-    });
+    this.updateMetronomeState();
   }
 
   onBpmSliderChange = (bpm) => {
@@ -88,24 +99,73 @@ class App extends Component {
 
   changeClickType = () => {
     this.metronome.clickType(true);
-    this.setState({
-      currentClickType: this.metronome.clickType(),
-    });
-  }
-
-  setNoteResolution = (resolution) => {
-    this.metronome.noteResolution(resolution);
-    this.setState({
-      noteResolution: this.metronome.noteResolution(),
-    });
+    this.updateMetronomeState();
   }
 
   toggleAccentFirstBeat = () => {
     this.metronome.accentFirstBeat(true);
-    this.setState({
+    this.updateMetronomeState();
+  }
+
+  updateMetronomeState() {
+    this.setState(this.getMetronomeState());
+  }
+
+  getMetronomeState() {
+    return {
+      metronomeOn: this.metronome.isOn(),
+      bpm: this.metronome.bpm(),
+      currentClickType: this.metronome.clickType(),
       accentFirstBeat: this.metronome.accentFirstBeat(),
-      inThree: this.metronome.isInThree() ? '3' : '',
-    });
+      numBeats: this.metronome.beatsPerBar(),
+      noteValueForBeat: this.metronome.noteValueForBeat(),
+    };
+  }
+
+  tap = () => {
+    this.metronome.tapTempo();
+    this.updateMetronomeState();
+  }
+
+  setNoteValueForBeat = (newNoteValue) => {
+    this.metronome.noteValueForBeat(newNoteValue.value);
+    this.updateMetronomeState();
+  }
+
+  setBeatsPerBar = (newBeats) => {
+    this.metronome.beatsPerBar(newBeats.value);
+    this.updateMetronomeState();
+  }
+
+  noteValueForBeatOptions() {
+    return [
+      {
+        value: 4,
+        label: 4,
+      },
+      {
+        value: 8,
+        label: 8,
+      },
+      {
+        value: 16,
+        label: 16,
+      },
+    ]
+  }
+
+  beatsPerBarOptions() {
+    const options = [];
+
+    // Allow the choices of 1 through 16 for beats per bar
+    for (let option = 1; option < 17; option++) {
+      options.push({
+        value: option,
+        label: option,
+      });
+    }
+
+    return options;
   }
 
   handleEl(props) {
@@ -122,48 +182,70 @@ class App extends Component {
   render() {
     return (
       <div className="main-container">
-        <div className="app-header">
-          <Cookie
-            metronomeActive={this.state.metronomeOn}
-            currentImg={this.state.currentCookieImage} />
-          <h2>{this.state.bpm} bpm</h2>
-          <Slider 
-            min={MIN_BPM}
-            max={MAX_BPM}
-            value={this.state.bpm}
-            handle={this.handleEl}
-            onChange={this.onBpmSliderChange}
-            onAfterChange={this.restartMetronome}/>
-          <div className="button-container">
-            <Button
-              noClickAnim={true}
-              addClass={'no-transition fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
-              clickHandler={this.toggleMetronome} />
-          </div>
-          <div className="button-container">
-            <Button
-              clickHandler={this.changeClickType}
-              addClass={'click-' + this.state.currentClickType + ' click-bell fa fa-bell'} />
-            <Button
-              addClass="fa fa-volume-down"
-              clickHandler={this.decreaseVolume} />
-            <Button
-              addClass="fa fa-volume-up"
-              clickHandler={this.increaseVolume} />
-          </div>
-          <div className="button-container">
-            <Button
-              addClass={'no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
-              label={this.state.inThree}
-              clickHandler={this.toggleAccentFirstBeat} />
-            <Button
-              addClass={'fa fa-hand-peace-o ' + (this.state.noteResolution === 4 ? 'active' : '')} 
-              clickHandler={() => this.setNoteResolution(4)} />
-            <Button
-              addClass={'fa fa-hand-spock-o ' + (this.state.noteResolution === 8 ? 'active' : '')} 
-              clickHandler={() => this.setNoteResolution(8)} />
-          </div>
-          <h1>Metronomnom</h1>
+        <h1>Metronomnom</h1>
+        <Cookie
+          metronomeActive={this.state.metronomeOn}
+          currentImg={this.state.currentCookieImage} />
+        <IndicatorLights
+          metronomeActive={this.state.metronomeOn}
+          activeLight={this.state.activeBeat}
+          numBeats={this.state.numBeats} />
+        {/* &#9833; is the hex code for a quarter note */}
+        <h2>&#9833; = {this.state.bpm}</h2>
+        <Slider 
+          min={MIN_BPM}
+          max={MAX_BPM}
+          value={this.state.bpm}
+          handle={this.handleEl}
+          onChange={this.onBpmSliderChange} />
+        <div className="button-container">
+          <Button
+            noClickAnim={true}
+            addClass={'no-transition fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
+            clickHandler={this.toggleMetronome} />
+          <Button
+            addClass="tap-tempo-button"
+            label="Tap Tempo"
+            clickHandler={this.tap} />
+        </div>
+        <div className="button-container">
+          <Button
+            addClass={'no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
+            clickHandler={this.toggleAccentFirstBeat} />
+          <Select
+            name="number-of-beats"
+            className="beats-per-bar"
+            value={this.state.numBeats}
+            options={this.beatsPerBarOptions()}
+            clearable={false}
+            searchable={false}
+            onChange={this.setBeatsPerBar} />
+          <Button
+            clickHandler={this.changeClickType}
+            addClass={'click-' + this.state.currentClickType + ' click-bell fa fa-bell'} />
+        </div>
+        <div className="button-container">
+          <Button
+            addClass="fa fa-volume-down"
+            clickHandler={this.decreaseVolume} />
+          <Select
+            name="note-value-for-beat"
+            className="note-value-for-beat"
+            value={this.state.noteValueForBeat}
+            options={this.noteValueForBeatOptions()}
+            clearable={false}
+            searchable={false}
+            onChange={this.setNoteValueForBeat} />
+          <Button
+            addClass="fa fa-volume-up"
+            clickHandler={this.increaseVolume} />
+        </div>
+        <div
+          className="link-container">
+          <a 
+            className="fa fa-github"
+            href="https://github.com/mrkoreye/metronomnom">
+          </a>
         </div>
       </div>
     );
