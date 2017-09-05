@@ -7,7 +7,7 @@ import Button from './components/button/button';
 import Cookie from './components/cookie/cookie';
 import Metronome from './services/metronome';
 import Slider from 'rc-slider';
-import Select from 'react-select';
+import Select from './components/select/select';
 import IndicatorLights from './components/indicator-lights/indicator-lights';
 
 const Handle = Slider.Handle;
@@ -128,29 +128,20 @@ class App extends Component {
   }
 
   setNoteValueForBeat = (newNoteValue) => {
-    this.metronome.noteValueForBeat(newNoteValue.value);
+    this.metronome.noteValueForBeat(newNoteValue);
     this.updateMetronomeState();
   }
 
   setBeatsPerBar = (newBeats) => {
-    this.metronome.beatsPerBar(newBeats.value);
+    this.metronome.beatsPerBar(newBeats);
     this.updateMetronomeState();
   }
 
   noteValueForBeatOptions() {
     return [
-      {
-        value: 4,
-        label: 4,
-      },
-      {
-        value: 8,
-        label: 8,
-      },
-      {
-        value: 16,
-        label: 16,
-      },
+      4,
+      8,
+      16,
     ]
   }
 
@@ -159,10 +150,7 @@ class App extends Component {
 
     // Allow the choices of 1 through 16 for beats per bar
     for (let option = 1; option < 17; option++) {
-      options.push({
-        value: option,
-        label: option,
-      });
+      options.push(option);
     }
 
     return options;
@@ -179,6 +167,60 @@ class App extends Component {
     )
   }
 
+  controlBlockContainer() {
+    return (
+      <div className="controls">
+        <Slider 
+          min={MIN_BPM}
+          max={MAX_BPM}
+          value={this.state.bpm}
+          handle={this.handleEl}
+          onChange={this.onBpmSliderChange} />
+        <div className="button-container margin-bottom">
+          <Button
+            noClickAnim={true}
+            addClass={'no-transition left fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
+            clickHandler={this.toggleMetronome} />
+          <div
+            className="tap-tempo-container">
+            <Button
+              addClass="tap-tempo-button"
+              label="Tap Tempo"
+              clickHandler={this.tap} />
+          </div>
+        </div>
+        <div className="button-container">
+          <Button
+            noClickAnim={true}
+            addClass={'left no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
+            clickHandler={this.toggleAccentFirstBeat} />
+          <Button
+            clickHandler={this.changeClickType}
+            addClass={'click-' + this.state.currentClickType + ' click-bell fa fa-bell'} />
+          <Select
+            selectedValue={this.state.numBeats}
+            values={this.beatsPerBarOptions()}
+            clickHandler={this.setBeatsPerBar} />
+        </div>
+        <div className="line-container">
+          <hr />
+        </div>
+        <div className="button-container">
+          <Button
+            addClass="left fa fa-volume-down"
+            clickHandler={this.decreaseVolume} />
+          <Button
+            addClass="fa fa-volume-up"
+            clickHandler={this.increaseVolume} />
+          <Select
+            selectedValue={this.state.noteValueForBeat}
+            values={this.noteValueForBeatOptions()}
+            clickHandler={this.setNoteValueForBeat} />
+        </div>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="main-container">
@@ -192,54 +234,7 @@ class App extends Component {
           numBeats={this.state.numBeats} />
         {/* &#9833; is the hex code for a quarter note */}
         <h2>&#9833; = {this.state.bpm}</h2>
-        <Slider 
-          min={MIN_BPM}
-          max={MAX_BPM}
-          value={this.state.bpm}
-          handle={this.handleEl}
-          onChange={this.onBpmSliderChange} />
-        <div className="button-container">
-          <Button
-            noClickAnim={true}
-            addClass={'no-transition fa fa-' + (this.state.metronomeOn ? 'stop' : 'play')} 
-            clickHandler={this.toggleMetronome} />
-          <Button
-            addClass="tap-tempo-button"
-            label="Tap Tempo"
-            clickHandler={this.tap} />
-        </div>
-        <div className="button-container">
-          <Button
-            addClass={'no-transition fa fa-bomb ' + (this.state.accentFirstBeat ? 'active' : '')} 
-            clickHandler={this.toggleAccentFirstBeat} />
-          <Select
-            name="number-of-beats"
-            className="beats-per-bar"
-            value={this.state.numBeats}
-            options={this.beatsPerBarOptions()}
-            clearable={false}
-            searchable={false}
-            onChange={this.setBeatsPerBar} />
-          <Button
-            clickHandler={this.changeClickType}
-            addClass={'click-' + this.state.currentClickType + ' click-bell fa fa-bell'} />
-        </div>
-        <div className="button-container">
-          <Button
-            addClass="fa fa-volume-down"
-            clickHandler={this.decreaseVolume} />
-          <Select
-            name="note-value-for-beat"
-            className="note-value-for-beat"
-            value={this.state.noteValueForBeat}
-            options={this.noteValueForBeatOptions()}
-            clearable={false}
-            searchable={false}
-            onChange={this.setNoteValueForBeat} />
-          <Button
-            addClass="fa fa-volume-up"
-            clickHandler={this.increaseVolume} />
-        </div>
+        {this.controlBlockContainer()}
         <div
           className="link-container">
           <a 

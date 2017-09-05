@@ -1,0 +1,41 @@
+.select-container {
+  display: inline;
+  position: relative;
+}
+
+.select-value {
+  display: inline-block;
+  color: #444;
+  font-size: 45px;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  line-height: 50px;
+  border-radius: 0;
+}
+
+.select-item {
+  display: inline-block;
+  width: 33%;
+  font-size: 35px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.select-overlay {
+  display: none;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-clip: padding-box;
+  background-color: white;
+  width: 300%;
+  border: 15px solid rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  font-size: 0;
+  z-index: 10;
+  background-clip: padding-box;
+}
+
+.select-overlay.active {
+  display: block;
+}
