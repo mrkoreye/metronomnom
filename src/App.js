@@ -170,6 +170,16 @@ class App extends Component {
   controlBlockContainer() {
     return (
       <div className="controls">
+        <div class="button-container">
+          <Button
+              noClickAnim={true}
+              addClass="tempo-bump fa fa-arrow-left" 
+              clickHandler={() => this.setBpm(this.state.bpm - 1)} />
+          <Button
+              noClickAnim={true}
+              addClass="tempo-bump fa fa-arrow-right" 
+              clickHandler={() => this.setBpm(this.state.bpm + 1)} />
+        </div>
         <Slider 
           min={MIN_BPM}
           max={MAX_BPM}
